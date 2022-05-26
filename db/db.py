@@ -3,6 +3,7 @@ import os
 import pymysql
 
 def connect_to_db():
+  load_dotenv()
   db_config={
       "host": os.getenv("HOST"),
       "user": "admin",
@@ -12,12 +13,8 @@ def connect_to_db():
   return pymysql.connect(**db_config)
 
 
-
-
-
-
-
 def create_db(connection, database): 
+
     with connection.cursor() as cursor:
       cursor.execute(
     """
@@ -26,45 +23,52 @@ def create_db(connection, database):
     connection.commit()
 
 def create_tables(connection):
-    queries = ["""
+    queries = [
+    "SET FOREIGN_KEY_CHECKS=0",
+    """
     DROP TABLE IF EXISTS Team;  
-
+    """,
+    """
     CREATE TABLE IF NOT EXISTS Team (
       team_id INT AUTO_INCREMENT NOT NULL,
-      name VARCHAR(100),
-      url VARCHAR(100),
+      name VARCHAR(255) UNIQUE,
+      url VARCHAR(255),
       PRIMARY KEY (team_id)
     ) ENGINE=INNODB;
     """,
     """
     DROP TABLE IF EXISTS Game;  
-
+    """,
+    """
     CREATE TABLE IF NOT EXISTS Game (
       game_id INT AUTO_INCREMENT NOT NULL,
       date DATETIME,
+      URL VARCHAR(255),
       home_team_id INT NOT NULL,
       away_team_id INT NOT NULL,
       home_score INT,
       away_score INT,
       PRIMARY KEY (game_id),
-      FOREIGN KEY(home_team_id) REFERENCES Team(team_id),
-      FOREIGN KEY(away_team_id) REFERENCES Team(team_id)
+      FOREIGN KEY(home_team_id) REFERENCES Team(team_id) ON DELETE CASCADE,
+      FOREIGN KEY(away_team_id) REFERENCES Team(team_id) ON DELETE CASCADE
     ) ENGINE=INNODB;
     """,
     """
     DROP TABLE IF EXISTS Player;
-
+    """,
+    """
     CREATE TABLE IF NOT EXISTS Player (
       player_id INT AUTO_INCREMENT NOT NULL,
-      name VARCHAR(100),
+      name VARCHAR(255) UNIQUE,
       team_id INT,
       PRIMARY KEY (player_id),
-      FOREIGN KEY (team_id) REFERENCES Team(team_id)
+      FOREIGN KEY (team_id) REFERENCES Team(team_id) ON DELETE CASCADE
     ) ENGINE=INNODB;
     """,
     """
     DROP TABLE IF EXISTS Score;
-
+    """,
+    """
     CREATE TABLE IF NOT EXISTS Score (
       score_id INT AUTO_INCREMENT NOT NULL,
       player_id INT,
@@ -79,19 +83,26 @@ def create_tables(connection):
       fta INT,
       ftm INT,
       PRIMARY KEY (score_id),
-      FOREIGN KEY(player_id) REFERENCES Player(player_id),
-      FOREIGN KEY(game_id) REFERENCES Game(game_id)
+      FOREIGN KEY(player_id) REFERENCES Player(player_id) ON DELETE CASCADE,
+      FOREIGN KEY(game_id) REFERENCES Game(game_id) ON DELETE CASCADE
     ) ENGINE=INNODB;
-    """]
+    """,
+    "SET FOREIGN_KEY_CHECKS=0"
+    ]
+
     with connection.cursor() as cursor:
       for x in queries:
         cursor.execute(x)
 
 
 def describe_table(connection, table):
-    return """
-      DESCRIBE {};
-    """.format(table)
+    with connection.cursor() as cursor:
+      cursor.execute( """
+        DESCRIBE {};
+      """.format(table))
+      for x in cursor:
+        print(x)
+
 
 
 def main():
