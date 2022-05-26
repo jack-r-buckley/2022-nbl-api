@@ -5,38 +5,27 @@ from datetime import datetime
 
 
 
-def scrape_games(driver):
+def scrape_box_score_urls(driver):
   base_url="https://men.nznbl.basketball/stats/results/"
-  
   driver.get(base_url)
-
-  # wait for the schedule element to load
 
   WebDriverWait(driver, 15).until(
     EC.presence_of_element_located((By.CLASS_NAME, "schedule-wrap"))
     )
 
-  # generates a list of urls to box scores of completed games 
-  box_scores=get_box_scores(driver)
-
-  # returns a list of games 
-  for x in box_scores:
-    driver.get(x)
-    WebDriverWait(driver, 15).until(
-      EC.presence_of_element_located((By.CLASS_NAME, "boxscore"))
-      )
-    print(get_game_details(x, driver))
-    # get_player_games(driver)
-
-def get_box_scores(driver):
   results=[]
   box_scores=driver.find_elements(by=By.CLASS_NAME, value='STATUS_COMPLETE')
-  for x in box_scores:
-    url = x.find_element(by=By.CLASS_NAME, value='detail-r-link')
-    results.append(url.get_attribute('href'))
-  return results
+  return [x.find_element(by=By.CLASS_NAME, value='detail-r-link').get_attribute('href') for x in box_scores]
 
-def get_game_details(url, driver):
+
+
+  
+def scrape_game_details(driver, url):
+  driver.get(url)
+  WebDriverWait(driver, 15).until(
+    EC.presence_of_element_located((By.CLASS_NAME, "boxscore"))
+    )
+
   home = driver.find_element(by=By.CLASS_NAME, value="home-wrapper")
   away = driver.find_element(by=By.CLASS_NAME, value="away-wrapper")
   date = driver.find_element(by=By.CLASS_NAME, value="match-time").find_element(by=By.TAG_NAME, value="span").get_attribute("innerText").strip()
@@ -49,13 +38,3 @@ def get_game_details(url, driver):
     "date": datetime.strptime(date, "%d %b %Y, %I:%M %p")
   }
   return game
-
-def get_player_games(url):
-  print("hello")
-
-def main():
-  driver = load_webdriver()
-  scrape_games(driver)
-
-if __name__ == '__main__':
-  main()

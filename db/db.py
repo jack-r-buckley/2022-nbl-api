@@ -43,7 +43,7 @@ def create_tables(connection):
     CREATE TABLE IF NOT EXISTS Game (
       game_id INT AUTO_INCREMENT NOT NULL,
       date DATETIME,
-      URL VARCHAR(255),
+      URL VARCHAR(255) UNIQUE,
       home_team_id INT NOT NULL,
       away_team_id INT NOT NULL,
       home_score INT,
@@ -59,7 +59,8 @@ def create_tables(connection):
     """
     CREATE TABLE IF NOT EXISTS Player (
       player_id INT AUTO_INCREMENT NOT NULL,
-      name VARCHAR(255) UNIQUE,
+      name VARCHAR(255),
+      url VARCHAR(255) UNIQUE,
       team_id INT,
       PRIMARY KEY (player_id),
       FOREIGN KEY (team_id) REFERENCES Team(team_id) ON DELETE CASCADE
@@ -74,6 +75,7 @@ def create_tables(connection):
       player_id INT,
       game_id INT,
       pts INT,
+      ast INT,
       stl INT,
       reb INT,
       blk INT,
@@ -82,6 +84,7 @@ def create_tables(connection):
       fgm INT,
       fta INT,
       ftm INT,
+      tov INT,
       PRIMARY KEY (score_id),
       FOREIGN KEY(player_id) REFERENCES Player(player_id) ON DELETE CASCADE,
       FOREIGN KEY(game_id) REFERENCES Game(game_id) ON DELETE CASCADE
