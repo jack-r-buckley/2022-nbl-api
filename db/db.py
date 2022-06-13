@@ -6,9 +6,11 @@ def connect_to_db():
   load_dotenv()
   db_config={
       "host": os.getenv("HOST"),
-      "user": "admin",
+      "user": os.getenv("USR"),
       "database": os.getenv("DATABASE"),
-      "password": os.getenv("PASSWORD")
+      "password": os.getenv("PASSWORD"),
+      "ssl_ca": os.getenv("PATH_TO_SSL_CA"),
+      "ssl_verify_cert": True
     }
   return pymysql.connect(**db_config)
 
@@ -24,7 +26,6 @@ def create_db(connection, database):
 
 def create_tables(connection):
     queries = [
-    "SET FOREIGN_KEY_CHECKS=0",
     """
     DROP TABLE IF EXISTS Team;  
     """,
@@ -48,9 +49,7 @@ def create_tables(connection):
       away_team_id INT NOT NULL,
       home_score INT,
       away_score INT,
-      PRIMARY KEY (game_id),
-      FOREIGN KEY(home_team_id) REFERENCES Team(team_id) ON DELETE CASCADE,
-      FOREIGN KEY(away_team_id) REFERENCES Team(team_id) ON DELETE CASCADE
+      PRIMARY KEY (game_id)
     ) ENGINE=INNODB;
     """,
     """
@@ -62,8 +61,7 @@ def create_tables(connection):
       name VARCHAR(255),
       url VARCHAR(255) UNIQUE,
       team_id INT,
-      PRIMARY KEY (player_id),
-      FOREIGN KEY (team_id) REFERENCES Team(team_id) ON DELETE CASCADE
+      PRIMARY KEY (player_id)
     ) ENGINE=INNODB;
     """,
     """
@@ -85,12 +83,9 @@ def create_tables(connection):
       fta INT,
       ftm INT,
       tov INT,
-      PRIMARY KEY (score_id),
-      FOREIGN KEY(player_id) REFERENCES Player(player_id) ON DELETE CASCADE,
-      FOREIGN KEY(game_id) REFERENCES Game(game_id) ON DELETE CASCADE
+      PRIMARY KEY (score_id)
     ) ENGINE=INNODB;
-    """,
-    "SET FOREIGN_KEY_CHECKS=0"
+    """
     ]
 
     with connection.cursor() as cursor:

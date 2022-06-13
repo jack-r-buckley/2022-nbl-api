@@ -15,20 +15,14 @@ def format_score_for_db(score, player_id, game_id):
 
 def delete_duplicate_scores(connection, scores: list):
   query=f"""
-  SELECT (player_id, game_id) FROM Score
+  SELECT player_id, game_id FROM Score
   """
   existing_scores=[]
   with connection.cursor() as cursor:
     cursor.execute(query)
     for x in cursor:
-      existing_scores.append({
-        "player_id": x[0],
-        "game_id": x[1]
-      })
-  filtered_scores=list(filter(lambda x: {
-    "player_id": x["player_id"],
-    "game_id": x["game_id"]
-  } not in existing_scores, scores))
+      existing_scores.append((x[0], x[1]))
+  filtered_scores=list(filter(lambda x: ((x[0], x[1]) not in existing_scores), scores))
   return filtered_scores
       
 
@@ -36,7 +30,7 @@ def select_scores(connection):
   query="""
     SELECT * FROM Score
   """
-  print("selection players")
+  print("selecting scores")
   with connection.cursor() as cursor:
     cursor.execute(query)
     for x in cursor:

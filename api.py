@@ -1,11 +1,8 @@
+from fastapi import FastAPI
 import db
 
-def main():
-  connection = db.connect_to_db()
-  db.select_teams(connection)
-  db.select_players(connection)
-  db.select_games(connection)
-  db.select_scores(connection)
+app = FastAPI()
 
-if __name__ == "__main__":
-  main()
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
