@@ -22,11 +22,18 @@ def select_games(connection):
   query="""
     SELECT * FROM Game
   """
-  print("selecting games")
   with connection.cursor() as cursor:
     cursor.execute(query)
-    for x in cursor:
-      print(x)
+    return [{
+      "game_id": x[0],
+      "datetime": x[1],
+      "URL": x[2],
+      "home_team_id": x[3],
+      "away_team_id": x[4],
+      "home_score": x[5],
+      "away_score": x[6]
+    } 
+    for x in cursor]
 
 def get_game_id(connection, url):
   query=f"""

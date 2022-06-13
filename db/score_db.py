@@ -30,11 +30,25 @@ def select_scores(connection):
   query="""
     SELECT * FROM Score
   """
-  print("selecting scores")
   with connection.cursor() as cursor:
     cursor.execute(query)
-    for x in cursor:
-      print(x)
+    return [{
+      "score_id": x[0],
+      "player_id": x[1],
+      "game_id": x[2],
+      "pts": x[3],
+      "ast": x[4],
+      "stl": x[5],
+      "reb": x[6],
+      "blk": x[7],
+      "3pm": x[8],
+      "fga": x[9],
+      "fgm": x[10],
+      "fta": x[11],
+      "ftm": x[12],
+      "tov": x[13]
+    } for x in cursor]
+
 
 
 

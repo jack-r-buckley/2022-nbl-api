@@ -26,9 +26,12 @@ def select_teams(connection):
   query="""
     SELECT * FROM Team
   """
-  print("selection teams")
 
   with connection.cursor() as cursor:
     cursor.execute(query)
-    for x in cursor:
-      print(x)
+    return [{
+      "team_id": x[0],
+      "name": x[1],
+      "url": x[2]
+    } for x in cursor]
+

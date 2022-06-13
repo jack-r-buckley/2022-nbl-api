@@ -26,8 +26,11 @@ def select_players(connection):
   query="""
     SELECT * FROM Player
   """
-  print("selection players")
   with connection.cursor() as cursor:
     cursor.execute(query)
-    for x in cursor:
-      print(x)
+    return [{
+      "player_id": x[0],
+      "name": x[1],
+      "url": x[2],
+      "team_id": x[3]
+    } for x in cursor]
